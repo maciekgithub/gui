@@ -1,6 +1,6 @@
 <div ng-controller="CampaignCtrl">
   <div class="page-header">
-    <h1>{{campaign.name}}</h1>
+    <h1>Kampania "{{campaign.name}}" ({{campaignId}})</h1>
   </div>
   <form class="form-horizontal">
     <div class="form-group">
@@ -12,19 +12,19 @@
     <div class="form-group">
       <label for="campaignStartDate" class="col-sm-2 col-sm-offset-1 control-label">Start</label>
       <div class="col-xs-4">
-        <input type="date" class="form-control" id="campaignStartDate" ng-model="campaign.startDate">
+        <input type="date" class="form-control" id="campaignStartDate" ng-model="campaign.params['START_DATE']">
       </div>
     </div>
     <div class="form-group">
       <label for="campaignEndDate" class="col-sm-2 col-sm-offset-1 control-label">Koniec</label>
       <div class="col-xs-4">
-        <input type="date" class="form-control" id="campaignEndDate" ng-model="campaign.endDate">
+        <input type="date" class="form-control" id="campaignEndDate" ng-model="campaign.params['END_DATE']">
       </div>
     </div>
     <div class="form-group">
       <label for="campaignLa" class="col-sm-2 col-sm-offset-1 control-label">LA</label>
       <div class="col-xs-2" style="padding-right: 5px;">
-        <select class="form-control" id="campaignLa" ng-model="campaign.la" ng-click="" required>
+        <select class="form-control" id="campaignLa" ng-model="campaign.params['LA']" ng-click="" required>
           <option value="">Wybierz...</option>
           <option ng-repeat="la in largeAccounts" ng-selected="{{la == campaign.la}}" value="{{la}}">
             {{la}}
@@ -39,14 +39,9 @@
       <div class="col-sm-offset-3 col-sm-9">
         <div class="checkbox">
           <label>
-            <input type="checkbox" ng-model="campaign.service.params.global"> Globalna kampania
+            <input type="checkbox" ng-model="campaign.params['GLOBAL']"> Globalna kampania
           </label>
         </div>
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="col-sm-offset-3 col-sm-9">
-        <button type="submit" class="btn btn-default" ng-disabled="!$form.valid">Utworz kampanię</button>
       </div>
     </div>
     <pre>{{campaign | json}}</pre>

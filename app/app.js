@@ -25,4 +25,43 @@ controller('MainCtrl', function($scope, $location) {
       return '';
     }
   }
-});
+}).
+
+factory('campaignService', function() {
+
+  var campaign = {}
+
+  function set(data) {
+    campaign = data;
+  }
+
+  function get() {
+    return campaign;
+  }
+
+  return {
+    set: set,
+    get: get
+  }
+
+}).
+
+factory('isepApi', function() {
+
+  var campaign = {}
+
+  function set(data) {
+    campaign = data;
+  }
+
+  function get() {
+    return campaign;
+  }
+
+  return {
+    set: set,
+    get: get
+  }
+
+})
+;

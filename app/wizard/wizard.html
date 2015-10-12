@@ -4,26 +4,38 @@
 <form name="newCampaing" novalidate class="form-horizontal" ng-controller="WizardCtrl" ng-submit="createCampaign()">
   <div class="form-group">
     <label for="campaignName" class="col-sm-2 col-sm-offset-1 control-label">Nazwa</label>
-    <div class="col-xs-4">
+    <div class="col-xs-3">
       <input type="text" class="form-control campaignName" id="campaignName" placeholder="Nazwa kamapnii" ng-model="campaign.name" required>
     </div>
   </div>
   <div class="form-group">
     <label for="campaignStartDate" class="col-sm-2 col-sm-offset-1 control-label">Start</label>
-    <div class="col-xs-4">
-      <input type="date" class="form-control" id="campaignStartDate" ng-model="campaign.startDate">
+    <div class="col-xs-3">
+      <input type="date" class="form-control" id="campaignStartDate" ng-model="campaign.params['START_DATE']">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="campaignStartTime" class="col-sm-2 col-sm-offset-1 control-label">Godzina</label>
+    <div class="col-xs-2">
+      <input type="time" class="form-control" id="campaignStartTime" ng-model="campaign.params['START_DATE']">
     </div>
   </div>
   <div class="form-group">
     <label for="campaignEndDate" class="col-sm-2 col-sm-offset-1 control-label">Koniec</label>
-    <div class="col-xs-4">
-      <input type="date" class="form-control" id="campaignEndDate" ng-model="campaign.endDate">
+    <div class="col-xs-3">
+      <input type="date" class="form-control" id="campaignEndDate" ng-model="campaign.params['END_DATE']">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="campaignEndTime" class="col-sm-2 col-sm-offset-1 control-label">Godzina</label>
+    <div class="col-xs-2">
+      <input type="time" class="form-control" id="campaignEndTime" ng-model="campaign.params['END_DATE']">
     </div>
   </div>
   <div class="form-group">
     <label for="campaignLa" class="col-sm-2 col-sm-offset-1 control-label">LA</label>
     <div class="col-xs-2" style="padding-right: 5px;">
-      <select class="form-control" id="campaignLa" ng-model="campaign.la" ng-click="" required>
+      <select class="form-control" id="campaignLa" ng-model="campaign.params['LA']" ng-click="" ng-required="!campaign.params['GLOBAL']" ng-disabled="campaign.params['GLOBAL']">
         <option value="">Wybierz...</option>
         <option ng-repeat="la in largeAccounts" ng-selected="{{la == campaign.la}}" value="{{la}}">
           {{la}}
@@ -35,22 +47,31 @@
     </button>
   </div>
   <div class="form-group">
-    <label for="service" class="col-sm-2 col-sm-offset-1 control-label">Usługa</label>
-    <div class="col-xs-2" style="padding-right: 5px;">
-      <select class="form-control" id="service" ng-model="campaign.service.name" required>
-        <option value="">Wybierz...</option>
-        <option ng-repeat="service in services" ng-selected="{{service.name == campaign.service.name}}" value="{{service.name}}">
-          {{service.name}}
-        </option>
+    <label for="svc" class="col-sm-2 col-sm-offset-1 control-label">Usługa</label>
+    <div class="col-xs-3" style="padding-right: 5px;">
+      <select id="svc" required
+              class="form-control"
+              ng-disabled="!services"
+              ng-model="selectedService"
+              ng-options="service.description for service in services"
+              ng-change="fetchOperations()">
       </select>
     </div>
     <button type="button" class="btn btn-default" aria-label="Refresh">
       <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
     </button>
   </div>
-  <div class="form-group" ng-repeat="operation in operations">
-    <div class="col-sm-9 col-sm-offset-3">
+  <div class="form-group" ng-show="campaign.service">
+    <label class="col-sm-2 col-sm-offset-1 control-label">Operacje</label>
+    <div ng-repeat="operation in campaign.operations" ng-class="$first ? 'col-sm-9' : 'col-sm-9 col-sm-offset-3'">
+      <h4>{{operation.description}}</h4>
+      <hr/>
+      <select class="form-control"
+              ng-options="discount.type for discount in discounts"
+              ng-model="operation.params['DISCOUNT']">
+      </select>
       <pre>{{operation | json}}</pre>
+      <!-- <hr ng-show="!$last"/> -->
     </div>
   </div>
 
@@ -58,7 +79,7 @@
     <div class="col-sm-offset-3 col-sm-9">
       <div class="checkbox">
         <label>
-          <input type="checkbox" ng-model="campaign.service.params.global"> Globalna kampania
+          <input type="checkbox" ng-model="campaign.params['GLOBAL']"> Globalna kampania
         </label>
       </div>
     </div>
@@ -69,6 +90,6 @@
     </div>
   </div>
   <pre>Path: {{getPath()}}</pre>
-  <pre>Form: {{newCampaing}}</pre>
   <pre>{{campaign | json}}</pre>
+  <pre>Form: {{newCampaing}}</pre>
 </form>
