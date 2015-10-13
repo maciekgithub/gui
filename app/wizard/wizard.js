@@ -1,15 +1,9 @@
 'use strict';
 
-angular.module('myApp.wizard', ['ngRoute'])
+angular.module('myApp.wizard', [])
 
-.config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/wizard', {
-    templateUrl: 'wizard/wizard.html',
-    controller: 'WizardCtrl'
-  });
-}])
-
-.controller('WizardCtrl', ['$scope', '$location', '$http', 'campaignService', function($scope, $location, $http, campaignService) {
+.controller('WizardCtrl', ['$scope', '$location', '$http', 'campaignService', 'SerivceApi', function($scope, $location, $http, campaignService, SerivceApi) {
+  alert('WizardCtrl');
   // focus on the first input element, i.e. campaign name
   angular.element('.campaignName').trigger('focus');
   // new campaign configuration
@@ -38,16 +32,32 @@ angular.module('myApp.wizard', ['ngRoute'])
   ];
 
   // services - this will be loaded from the REST service
-  $scope.selectedService = undefined;
   $scope.services = undefined;
-  $http({
-    method: 'GET',
-    url: '/api/service/all'
-  }).then(function successCallback(response) {
-    $scope.services = response.data.dtos;
-  }, function errorCallback(response) {
-    alert('Wystąpił błąd podczas pobierania listy usług NAI. Szczegoły: ' + response.statusText);
+  $scope.selectedService = undefined;
+  // isepApi.getServices().then(function(services) {
+  //   $scope.services = services;
+  // });
+  $scope.services = SerivceApi.getServices();
+  console.log($scope.services);
+  var skarbonka = SerivceApi.get({ "path" : "Piggybank" }, function() {
+    console.log(JSON.stringify(skarbonka));
   });
+  // $scope.services = undefined;
+  // alert(JSON.stringify(isepApi.getServices()));
+  // isepApi.getServices().then(function(response) {
+  //   alert(response);
+  //   $scope.services = response.data.dtos;
+  // });
+  // alert('$scope.services=' + $scope.services);
+  // $scope.services = undefined;
+  // $http({
+  //   method: 'GET',
+  //   url: '/api/service/all'
+  // }).then(function successCallback(response) {
+  //   $scope.services = response.data.dtos;
+  // }, function errorCallback(response) {
+  //   alert('Wystąpił błąd podczas pobierania listy usług NAI. Szczegoły: ' + response.statusText);
+  // });
 
   // operations of the selected service
   $scope.operations = [{
@@ -69,6 +79,10 @@ angular.module('myApp.wizard', ['ngRoute'])
     }
     var serviceName = $scope.selectedService.name;
     alert('Pobieram listę operacji w serwisie: ' + serviceName);
+
+    var operations = SerivceApi.getOperations({name : serviceName});
+    console.log(JSON.stringify(operations));
+
     $scope.campaign.service = campaignService;
     $scope.campaign.operations = $scope.operations;
   }

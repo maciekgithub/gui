@@ -1,0 +1,14 @@
+{
+  "dtos" : [
+    {
+      "id" : 101,
+      "name" : "Piggybank",
+      "description" : "Skarbonka"
+    },
+    {
+      "id" : 201,
+      "name" : "Birthday",
+      "description" : "Urodziny"
+    }
+  ]
+}

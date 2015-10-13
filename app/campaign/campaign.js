@@ -1,13 +1,6 @@
 'use strict';
 
-angular.module('myApp.campaign', ['ngRoute'])
-
-.config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/campaign', {
-    templateUrl: 'campaign/campaign.html',
-    controller: 'CampaignCtrl'
-  });
-}])
+angular.module('myApp.campaign', [])
 
 .controller('CampaignCtrl', ['$scope', '$location', 'campaignService', function($scope, $location, campaignService) {
   // focus on the first input element, i.e. campaign name

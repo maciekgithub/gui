@@ -2,6 +2,7 @@
 
 // Declare app level module which depends on views, and components
 angular.module('myApp', [
+  'ngResource',
   'ngRoute',
   'myApp.campaign',
   'myApp.home',
@@ -12,9 +13,22 @@ angular.module('myApp', [
 ]).
 
 config(['$routeProvider', function($routeProvider) {
-  $routeProvider.otherwise({
-    redirectTo: '/home'
-  });
+  $routeProvider
+    .when('/home', {
+      templateUrl: 'home/home.html',
+      controller: 'HomeCtrl'
+    })
+    .when('/campaign', {
+      templateUrl: 'campaign/campaign.html',
+      controller: 'CampaignCtrl'
+    })
+    .when('/wizard', {
+      templateUrl: 'wizard/wizard.html',
+      controller: 'WizardCtrl'
+    })
+    .otherwise({
+      redirectTo: '/home'
+    });
 }]).
 
 controller('MainCtrl', function($scope, $location) {
@@ -46,22 +60,51 @@ factory('campaignService', function() {
 
 }).
 
-factory('isepApi', function() {
+factory('SerivceApi', function($resource) {
+  return $resource('api/service/:name', {}, {
+    getServices: {
+      method: 'GET',
+      params: {"name" : "all"},
+      isArray: true,
+      transformResponse: function(data, header) {
+        //Getting string data in response
+        var jsonData = JSON.parse(data); //or angular.fromJson(data)
+        console.log('JSON data: ' + JSON.stringify(jsonData));
 
-  var campaign = {}
+        var services = [];
+        angular.forEach(jsonData.dtos, function(item) {
+          console.log('Item: ' + JSON.stringify(item));
+          services.push(item);
+        });
+        return services;
+      }
+    },
+    // invocation example: getOperations({'name' : 'Techniczna nazwa usługi'})
+    getOperations: {
+      url: 'api/service/:name/operations',
+      method: 'GET',
+      // params: {"name" : "@serviceName"},
+      isArray: true,
+      transformResponse: function(data, header) {
+        //Getting string data in response
+        var jsonData = JSON.parse(data); //or angular.fromJson(data)
+        console.log('JSON data: ' + JSON.stringify(jsonData));
 
-  function set(data) {
-    campaign = data;
-  }
+        var operations = [];
+        angular.forEach(jsonData.dtos, function(item) {
+          console.log('Item: ' + JSON.stringify(item));
+          operations.push(item);
+        });
+        return operations;
+      }
+    }
+  });
+}).
 
-  function get() {
-    return campaign;
-  }
+factory('OperationApi', function($resource) {
+  return $resource('api/operation/:path');
+}).
 
-  return {
-    set: set,
-    get: get
-  }
-
-})
-;
+factory('CampaignApi', function($resource) {
+  return $resource('api/campaign/:id');
+});
