@@ -9,6 +9,15 @@
     </div>
   </div>
   <div class="form-group">
+    <div class="col-sm-offset-3 col-sm-9">
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="campaign.params['GLOBAL']"> Globalna kampania
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="form-group">
     <label for="campaignStartDate" class="col-sm-2 col-sm-offset-1 control-label">Start</label>
     <div class="col-xs-3">
       <input type="date" class="form-control" id="campaignStartDate" ng-model="campaign.params['START_DATE']">
@@ -49,39 +58,64 @@
   <div class="form-group">
     <label for="svc" class="col-sm-2 col-sm-offset-1 control-label">Usługa</label>
     <div class="col-xs-3" style="padding-right: 5px;">
-      <select id="svc" required
-              class="form-control"
-              ng-disabled="!services"
-              ng-model="selectedService"
-              ng-options="service.description for service in services"
-              ng-change="fetchOperations()">
+      <select id="svc" required class="form-control" ng-disabled="!services" ng-model="selectedService" ng-change="fetchOperations()" ng-options="service.description for service in services">
+        <option value="">Wybierz...</option>
+        <!-- <option ng-repeat="service in services" value="{{ service.value }}" ng-selelected="{{ selectedService.id == service.id }}">{{ service.description }}</option> -->
       </select>
     </div>
-    <button type="button" class="btn btn-default" aria-label="Refresh">
+    <button type="button" class="btn btn-default" aria-label="Refresh" ng-click="refreshServices()">
       <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
     </button>
   </div>
   <div class="form-group" ng-show="campaign.service">
     <label class="col-sm-2 col-sm-offset-1 control-label">Operacje</label>
-    <div ng-repeat="operation in campaign.operations" ng-class="$first ? 'col-sm-9' : 'col-sm-9 col-sm-offset-3'">
+    <div ng-repeat="operation in operations | filter:operationFilter" ng-class="$first ? 'col-sm-9' : 'col-sm-9 col-sm-offset-3'">
       <h4>{{operation.description}}</h4>
       <hr/>
-      <select class="form-control"
-              ng-options="discount.type for discount in discounts"
-              ng-model="operation.params['DISCOUNT']">
-      </select>
+      <div class="form-group" ng-show="showAddDiscountBtn(operation)">
+        <div class="col-sm-12">
+          <button type="button" class="btn btn-warning pull-right" ng-click="addDiscount(operation)">Dodaj Rabat</button>
+        </div>
+      </div>
+      <div ng-if="operation.params['DISCOUNT']">
+        <div class="form-group">
+          <label for="discountType" class="col-sm-2 control-label">Typ rabatu</label>
+          <div class="col-xs-3">
+            <select class="form-control" ng-model="operation.params['DISCOUNT'].type" ng-change="resetDiscount(operation)">
+              <option value="">Wybierz typ rabatu...</option>
+              <option ng-repeat="discount in discounts" value="{{discount.type}}">{{discount.label}}</option>
+            </select>
+          </div>
+        </div>
+        <div ng-if="operation.params['DISCOUNT'].type">
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Wartość</label>
+            <div class="input-group col-xs-2" style="padding-left: 15px;">
+              <input type="number" min="0" ng-max="maxDiscountValue(operation)" class="form-control" aria-label="Kwota rabatu" ng-model="operation.params['DISCOUNT'].amount">
+              <span class="input-group-addon">{{discountAddon(operation)}}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Ważność</label>
+            <div class="col-xs-3">
+              <input type="date" class="form-control" aria-label="Ważność rabatu" ng-model="operation.params['DISCOUNT'].validity">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-2 control-label">Powtarzalność</label>
+            <div class="col-xs-2">
+              <input type="number" min="-1" max="100" class="form-control" aria-label="Powtarzalność rabatu" ng-model="operation.params['DISCOUNT'].recurrence">
+            </div>
+          </div>
+        </div>
+        <div class="form-group" ng-show="!showAddDiscountBtn(operation)">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="button" class="btn btn-danger" ng-click="removeDiscount(operation)">Usuń Rabat</button>
+          </div>
+        </div>
+      </div>
       <pre>{{operation | json}}</pre>
       <!-- <hr ng-show="!$last"/> -->
-    </div>
-  </div>
-
-  <div class="form-group">
-    <div class="col-sm-offset-3 col-sm-9">
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" ng-model="campaign.params['GLOBAL']"> Globalna kampania
-        </label>
-      </div>
     </div>
   </div>
   <div class="form-group">
@@ -91,5 +125,5 @@
   </div>
   <pre>Path: {{getPath()}}</pre>
   <pre>{{campaign | json}}</pre>
-  <pre>Form: {{newCampaing}}</pre>
+  <!-- <pre>Form: {{newCampaing}}</pre> -->
 </form>

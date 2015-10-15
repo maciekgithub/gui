@@ -3,7 +3,6 @@
 angular.module('myApp.wizard', [])
 
 .controller('WizardCtrl', ['$scope', '$location', '$http', 'campaignService', 'SerivceApi', function($scope, $location, $http, campaignService, SerivceApi) {
-  alert('WizardCtrl');
   // focus on the first input element, i.e. campaign name
   angular.element('.campaignName').trigger('focus');
   // new campaign configuration
@@ -17,8 +16,9 @@ angular.module('myApp.wizard', [])
   $scope.campaign = {
     "name": "",
     "params": {
-      "START_DATE": new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0), //year, month, day
+      "START_DATE": new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0),
       "END_DATE": new Date(nextWeek),
+      // "END_DATE": new Date(nextWeek.getFullYear(), nextWeek.getMonth(), nextWeek.getDate(), nextWeek.getHours(), nextWeek.getMinutes(), nextWeek.getSeconds(), nextWeek.getMilliseconds()),
       "LA": "",
       "GLOBAL": false
     }
@@ -31,67 +31,81 @@ angular.module('myApp.wizard', [])
     "103"
   ];
 
-  // services - this will be loaded from the REST service
-  $scope.services = undefined;
-  $scope.selectedService = undefined;
-  // isepApi.getServices().then(function(services) {
-  //   $scope.services = services;
-  // });
+  // $scope.services holds a list of ISeP NAI services - it os loaded from the REST service via the ServiceApi factory
   $scope.services = SerivceApi.getServices();
-  console.log($scope.services);
-  var skarbonka = SerivceApi.get({ "path" : "Piggybank" }, function() {
-    console.log(JSON.stringify(skarbonka));
-  });
-  // $scope.services = undefined;
-  // alert(JSON.stringify(isepApi.getServices()));
-  // isepApi.getServices().then(function(response) {
-  //   alert(response);
-  //   $scope.services = response.data.dtos;
-  // });
-  // alert('$scope.services=' + $scope.services);
-  // $scope.services = undefined;
-  // $http({
-  //   method: 'GET',
-  //   url: '/api/service/all'
-  // }).then(function successCallback(response) {
-  //   $scope.services = response.data.dtos;
-  // }, function errorCallback(response) {
-  //   alert('Wystąpił błąd podczas pobierania listy usług NAI. Szczegoły: ' + response.statusText);
-  // });
-
-  // operations of the selected service
-  $scope.operations = [{
-    "id": 121,
-    "name": "ACTIVATION",
-    "description": "Aktywacja usługi",
-    "params": {}
-  }, {
-    "id": 122,
-    "name": "DEACTIVATION",
-    "description": "Dezaktywacja usługi",
-    "params": {}
-  }];
+  // holds the service selected by the user
+  $scope.selectedService = undefined;
+  // function that refreshes the list of ISeP NAI services using the SerivceApi factory
+  $scope.refreshServices = function() {
+    $scope.services = SerivceApi.getServices();
+  };
+  // function that fetches the list of operations in the selected service
   $scope.fetchOperations = function() {
-    var campaignService = {
-      "id" : $scope.selectedService.id,
-      "name" : $scope.selectedService.name,
-      "description" : $scope.selectedService.description
-    }
     var serviceName = $scope.selectedService.name;
-    alert('Pobieram listę operacji w serwisie: ' + serviceName);
-
+    console.log('Pobieram listę operacji w serwisie: ' + serviceName);
     var operations = SerivceApi.getOperations({name : serviceName});
     console.log(JSON.stringify(operations));
 
-    $scope.campaign.service = campaignService;
-    $scope.campaign.operations = $scope.operations;
+    $scope.campaign.service = $scope.selectedService;
+    $scope.operations = operations;
+  }
+  $scope.operationFilter = function(operation) {
+    var name = operation.name;
+    if (name.indexOf('DEACTIVATION') > -1) {
+      return false;
+    }
+    return name.indexOf('ACTIVATION') > -1 || name.indexOf('MODIFICATION') > -1 || name.indexOf('NEXT_CYCLE') > -1;
+  };
+  $scope.addDiscount = function(operation) {
+    console.log('Adding discount for ' + JSON.stringify(operation));
+    if (typeof $scope.campaign.operations === 'undefined') {
+      $scope.campaign.operations = [];
+    }
+    operation.params = {};
+    operation.params['DISCOUNT'] = {};
+    $scope.campaign.operations.push(operation);
+  }
+  $scope.removeDiscount = function(operation) {
+    var index = $.inArray(operation, $scope.campaign.operations);
+    if (index < 0) {
+      return;
+    }
+    console.log('Operations: ' + $scope.campaign.operations);
+    console.log('Operations: ' + JSON.stringify($scope.campaign.operations));
+
+    $scope.campaign.operations = $.grep($scope.campaign.operations, function(value) {
+      return value != operation;
+    });
+    
+    if ($scope.campaign.operations.length === 0) {
+      $scope.campaign.operations = undefined;
+    }
+    operation.params = undefined;
+  }
+  // resets discount for an operation when discount type is changed
+  $scope.resetDiscount = function(operation) {
+    var discount = operation.params['DISCOUNT'];
+    discount.amount = undefined;
+    discount.validity = undefined;
+    discount.recurrence = undefined;
+  }
+  
+  $scope.showAddDiscountBtn = function(operation) {
+    return $.inArray(operation, $scope.campaign.operations) === -1;
+  }
+  $scope.maxDiscountValue = function(operation) {
+    return operation.params['DISCOUNT'].type=='PriceOverride' ? 200 : 100;
+  }
+  $scope.discountAddon = function(operation) {
+    return operation.params['DISCOUNT'].type=='PriceOverride' ? 'zł' : '%';
   }
 
-  $scope.selectedItem = {}
   $scope.discounts = [{
-    "type": "Kwotowy"
+    "type": "PriceOverride",
+    "label": "Napisanie ceny"
   }, {
-    "type": "Procentowy"
+    "type": "PricePercentage",
+    "label": "Procent ceny"
   }]
 
   // var campaign = $scope.campaign;
@@ -103,13 +117,7 @@ angular.module('myApp.wizard', [])
   $scope.createCampaign = function() {
     // ...
     campaignService.set($scope.campaign);
-    $location.path('/campaign').search({
-      "id": "101"
-    });
-  }
-
-  $scope.getPath = function() {
-    return $location.path();
+    $location.path('/campaign/101');
   }
 
 }]);
