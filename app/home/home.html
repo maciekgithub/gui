@@ -3,3 +3,19 @@
   <p>Rabatowanie usług NAI w 5 minut.</p>
   <p><a class="btn btn-primary btn-lg" href="#/wizard" role="button">Nowa kampania</a></p>
 </div>
+
+<div ng-repeat="operation in operations" class="col-sm-9 col-sm-offset-3">
+  <h4>{{operation.description}}</h4>
+  <hr/>
+  <!-- <select class="form-control"
+          ng-options="discount.type for discount in discounts"
+          ng-model="operation.params['DISCOUNT'].type">
+  </select> -->
+  <select class="form-control" ng-model="operation.params['DISCOUNT'].type">
+    <option value="">Wybierz typ rabatu...</option>
+    <option ng-repeat="discount in discounts" value="{{discount.type}}">{{discount.type}}</option>
+  </select>
+  <input type="number" ng-model="operation.params['DISCOUNT'].amount" class="form-control col-xs-3" placeholder="Kwota rabatu"></input>
+  <pre>{{operation | json}}</pre>
+  <!-- <hr ng-show="!$last"/> -->
+</div>
