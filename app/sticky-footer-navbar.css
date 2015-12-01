@@ -37,3 +37,12 @@ body > .container {
 code {
   font-size: 80%;
 }
+
+
+.myApp.wizard {
+  /** Demo styles for mdCalendar. */ }
+  .myApp.wizard md-content {
+    padding-bottom: 200px; }
+}
+
+

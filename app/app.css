@@ -32,3 +32,11 @@
 .form-group-sm {
   margin-bottom: 10px;
 }
+
+.myCalendar {  
+  color: #0066CC;
+  margin-left: -4.5%
+  }
+.myCalendarLabel{
+  margin-top: 0.6%;
+}

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('myApp.wizard', [])
+angular.module('myApp.wizard', ['ngMaterial'])
 
 .controller('WizardCtrl', ['$scope', '$location', '$http', 'campaignService', 'SerivceApi', function($scope, $location, $http, campaignService, SerivceApi) {
   // focus on the first input element, i.e. campaign name
@@ -119,5 +119,7 @@ angular.module('myApp.wizard', [])
     campaignService.set($scope.campaign);
     $location.path('/campaign/101');
   }
+
+  // $scope.date = new Date();
 
 }]);

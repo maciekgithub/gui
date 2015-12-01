@@ -65,7 +65,7 @@ factory('campaignService', function() {
 }).
 
 factory('SerivceApi', function($resource) {
-  return $resource('/api/service/:name', {}, {
+  return $resource('http://prospero/isep/api/service/:name', {}, {
     getServices: {
       method: 'GET',
       params: {
@@ -97,7 +97,7 @@ factory('SerivceApi', function($resource) {
     },
     // invocation example: getOperations({'name' : 'Techniczna nazwa usługi'})
     getOperations: {
-      url: '/api/service/:name/operations',
+      url: 'http://prospero/isep/api/service/:name/operations',
       method: 'GET',
       isArray: true,
       transformResponse: function(data, header) {
@@ -135,9 +135,9 @@ factory('SerivceApi', function($resource) {
 }).
 
 factory('OperationApi', function($resource) {
-  return $resource('/api/operation/:name');
+  return $resource('http://prospero/isep/api/operation/:name');
 }).
 
 factory('CampaignApi', function($resource) {
-  return $resource('/api/campaign/:id');
+  return $resource('http://prospero/isep/api/campaign/:id');
 });
